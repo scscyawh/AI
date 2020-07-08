@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsScene, QMessageBox
 from PyQt5.QtCore import *
 import dlocr
 import time
-from test import Ui_MainWindow
+from 一个简单的输入框 import Ui_MainWindow
 
 import socket
 import requests
