@@ -8,6 +8,7 @@ def getInput(title, message):
 
     def close_callback():
         tkinter.messagebox.showinfo('提示', '确定退出？')
+        str = None
         root.quit()
 
     root = Tk(className=title)
@@ -33,4 +34,7 @@ def getInput(title, message):
 
 
 a = getInput('测试', '测试内容')
-print(type(a))
+if a:
+    print('ok')
+else:
+    print('no')
