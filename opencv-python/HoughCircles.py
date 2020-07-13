@@ -9,6 +9,14 @@ import xlrd
 from tkinter import *
 import tkinter.messagebox
 
+"""
+精度优化：
+1.大圆、小圆拟合优化。
+
+运算时间优化：
+1.目前运算时间在1s上下。
+"""
+
 
 def save_excel(row, col, value, path):
     rb = xlrd.open_workbook(path)
@@ -209,7 +217,7 @@ def OUTSIDE_detect_circles(image):
         if x_clip < 0:
             x_clip = 0
         matching_image = dst_Canny[y_clip:zhuanyong_INT(matching_y) + zhuanyong_INT(matching_r) + 10,
-                                   x_clip:zhuanyong_INT(matching_x) + zhuanyong_INT(matching_r) + 10]
+                         x_clip:zhuanyong_INT(matching_x) + zhuanyong_INT(matching_r) + 10]
         # 开始计算：将霍夫检测得到的圆映射到Canny图中，计算圆边上的白色像素块的占比。
         all_points = 0
         in_circle_points = 0
@@ -217,13 +225,13 @@ def OUTSIDE_detect_circles(image):
             for high in range(matching_image.shape[0]):
                 if zhuanyong_INT(
                         calculate_center(weigh, high, matching_x - x_clip, matching_y - y_clip)) == zhuanyong_INT(
-                                         matching_r):
+                    matching_r):
                     all_points = all_points + 1
                     if matching_image[high, weigh] == 255:
                         in_circle_points = in_circle_points + 1
 
         matching_result_data = (in_circle_points / all_points) * 100
-        print('大圆的拟合程度为:{:0.2f}%'.format(matching_result_data))
+        print('大圆的拟合程度为:{:0.2f}%,将去除拟合度小于10%的圆'.format(matching_result_data))
 
         if matching_result_data > 10:
             matching_result.append(circle_matching)
@@ -329,7 +337,7 @@ def INSIDE_DETECT(OUTSIDE_CIRCLE_DATA, IMAGE, SRC_IMAGE):
                     if circle_canny[high, weigh] == 255:
                         in_points = in_points + 1
         matching = (in_points / all_points) * 100
-        print('小圆的拟合程度为:{:0.2f}%'.format(matching))
+        print('小圆的拟合程度为:{:0.2f}%，将去除拟合度小于10%的圆'.format(matching))
 
         if matching > 10:
             # 绘制拟合度
