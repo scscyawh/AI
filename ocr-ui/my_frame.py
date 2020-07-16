@@ -127,7 +127,7 @@ class Ui_MainWindow(object):
         self.frame.setObjectName("frame")
 
         self.graphicsView = QtWidgets.QGraphicsView(self.frame)
-        self.graphicsView.setGeometry(QtCore.QRect(0, 0, 988, 800))
+        self.graphicsView.setGeometry(QtCore.QRect(0, 60, 988, 680))
         self.graphicsView.setObjectName("graphicsView")
         self.graphicsView.setStyleSheet('border-radius:80px;')
 

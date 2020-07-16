@@ -14,7 +14,7 @@ while 1:
         break
     s = time.time()
     socket.send(str.encode(data))
-    print((time.time()-s)* 1000)
+    print((time.time()-s) * 1000)
     data = socket.recv(BUFSIZE)
     if not data:
         break

@@ -353,13 +353,6 @@ def CALCULATE_DATA(data, image, INPUT_DATA):
         cv.putText(image, "{:0.3f}mm".format(S),
                    (zhuanyong_INT(CIRCLE_x - 80), zhuanyong_INT(CIRCLE_y - 100)),
                    font, 1, (60, 20, 220), 3)
-        # result.append(CIRCLE_x)
-        # result.append(CIRCLE_y)
-        # result.append(R)
-        # result.append(circle_x)
-        # result.append(circle_y)
-        # result.append(d / 2)
-        # result.append(S)
         result.append(
             '%3.4f %3.4f %3.4f %3.4f %3.4f %3.4f %3.4f' % (CIRCLE_x, CIRCLE_y, R, circle_x, circle_y,
                                                            d / 2, S))
@@ -373,7 +366,7 @@ def fit_circle(path, INPUT):
     # cv.circle直接在原图上进行了修改，所以传入的img会发生变化
     OUTSIDE_circle_data = OUTSIDE_detect_circles(img)
     if OUTSIDE_circle_data is None:
-        result = ['0 0 0 0 0 0 0']
+        result = ['%3.4f %3.4f %3.4f %3.4f %3.4f %3.4f %3.4f' % (0, 0, 0, 0, 0, 0, 0)]
         return result, img
     finally_data = INSIDE_DETECT(OUTSIDE_circle_data, img, src_img)
     result, RESULT_IMAGE = CALCULATE_DATA(finally_data, img, INPUT)
@@ -389,7 +382,7 @@ if __name__ == '__main__':
             src_img = cv.imread(filepath)
             img = cv.imread(filepath)
      '''
-    path = r'D:\resource_AI\THE DETECTION OF CIRCLE\SAMLPS\testdata\20200709150057.png'
+    path = r'C:\Users\Hasee\Desktop\data\123.png'
     all_time = time.time()
     data, img = fit_circle(path, 4)
     print(data)

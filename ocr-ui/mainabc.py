@@ -17,7 +17,7 @@ from requests_toolbelt import MultipartEncoder
 HOST = '192.168.3.145'  # "192.168.0.102"
 PORT = 8888
 BUFSIZE = 1024
-share_path = r'C:\Users\Hasee\Desktop\test'
+share_path = r'C:\Users\Hasee\Desktop\data'
 search_optimize = 'http://192.168.3.174:8080/upload/optimizeNameplateId?nameplateId='
 sign = 'http://192.168.3.174:8080/visionUserLogin?userName='
 
