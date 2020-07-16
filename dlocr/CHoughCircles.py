@@ -263,7 +263,7 @@ def INSIDE_DETECT(OUTSIDE_CIRCLE_DATA, IMAGE, SRC_IMAGE):
                                         1, 10,
                                         param1=50, param2=10, minRadius=0, maxRadius=0)
         if INSIDE_CIRCLE is None:
-            print('未找到')
+            result_data[label] = (circle_x, circle_y, 0, 0, 0, Radius)
             continue
         INSIDE_CIRCLE = INSIDE_CIRCLE[0, :]
         INSIDE_CIRCLE = find_max(INSIDE_CIRCLE)
@@ -313,7 +313,7 @@ def INSIDE_DETECT(OUTSIDE_CIRCLE_DATA, IMAGE, SRC_IMAGE):
 
         else:
             result_data[label] = (circle_x, circle_y,
-                                  0, 0, 0, 0)
+                                  0, 0, 0, Radius)
     print('---------------------second part cost:{:0.4f}ms----------------------'.format(
         (time.time() - second_part_cost) * 1000))
     return result_data
@@ -330,7 +330,7 @@ def CALCULATE_DATA(data, image, INPUT_DATA):
     """
     # 绘制标签
     cont = len(data)
-    result = {}
+    result = []
     for label in range(1, cont + 1):
         CIRCLE_x = data[label][0]  # 大圆x坐标
         CIRCLE_y = data[label][1]  # 大圆y坐标
@@ -338,8 +338,10 @@ def CALCULATE_DATA(data, image, INPUT_DATA):
         circle_y = data[label][3]  # 小圆y坐标
         d = data[label][4]  # 小圆像素直径
         R = data[label][5]  # 大圆像素半径
-        Td = INPUT_DATA  # 小圆真实直径
+        Td = INPUT_DATA  # 小圆真实直径0
         if CIRCLE_x == 0 or CIRCLE_y == 0 or circle_x == 0 or circle_y == 0 or d == 0 or Td == 0:
+            result.append(
+                '%3.4f %3.4f %3.4f %3.4f %3.4f %3.4f %3.4f' % (CIRCLE_x, CIRCLE_y, R, circle_x, circle_y, d / 2, 0))
             break
         # 绘制标签
         font = cv.FONT_HERSHEY_SIMPLEX
@@ -351,17 +353,28 @@ def CALCULATE_DATA(data, image, INPUT_DATA):
         cv.putText(image, "{:0.3f}mm".format(S),
                    (zhuanyong_INT(CIRCLE_x - 80), zhuanyong_INT(CIRCLE_y - 100)),
                    font, 1, (60, 20, 220), 3)
-        result[label] = [CIRCLE_x, CIRCLE_y, R, circle_x, circle_y, d/2, S]
+        # result.append(CIRCLE_x)
+        # result.append(CIRCLE_y)
+        # result.append(R)
+        # result.append(circle_x)
+        # result.append(circle_y)
+        # result.append(d / 2)
+        # result.append(S)
+        result.append(
+            '%3.4f %3.4f %3.4f %3.4f %3.4f %3.4f %3.4f' % (CIRCLE_x, CIRCLE_y, R, circle_x, circle_y,
+                                                           d / 2, S))
 
     return result, image
 
 
 def fit_circle(path, INPUT):
-    print(path)
     img = cv.imread(path)
     src_img = cv.imread(path)
     # cv.circle直接在原图上进行了修改，所以传入的img会发生变化
     OUTSIDE_circle_data = OUTSIDE_detect_circles(img)
+    if OUTSIDE_circle_data is None:
+        result = ['0 0 0 0 0 0 0']
+        return result, img
     finally_data = INSIDE_DETECT(OUTSIDE_circle_data, img, src_img)
     result, RESULT_IMAGE = CALCULATE_DATA(finally_data, img, INPUT)
     return result, RESULT_IMAGE
@@ -380,6 +393,6 @@ if __name__ == '__main__':
     all_time = time.time()
     data, img = fit_circle(path, 4)
     print(data)
-    print('------ cost:{:0.4f}ms------'.format((time.time() - all_time)*1000))
+    print('------ cost:{:0.4f}ms------'.format((time.time() - all_time) * 1000))
     cv.imshow('', img)
     cv.waitKey()

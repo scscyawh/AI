@@ -6,6 +6,8 @@ import dlocr
 import time
 from my_frame import Ui_MainWindow
 
+import cv2 as cv
+from dlocr import CHoughCircles
 import socket
 import requests
 import os
@@ -16,8 +18,8 @@ HOST = '192.168.3.145'  # "192.168.0.102"
 PORT = 8888
 BUFSIZE = 1024
 share_path = r'C:\Users\Hasee\Desktop\test'
-search_optimize = 'http://192.168.3.63:8080/upload/optimizeNameplateId?nameplateId='
-sign = 'http://192.168.3.63:8080/visionUserLogin?userName='
+search_optimize = 'http://192.168.3.174:8080/upload/optimizeNameplateId?nameplateId='
+sign = 'http://192.168.3.174:8080/visionUserLogin?userName='
 
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -166,7 +168,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                                                         )
         self.textEdit_download_pc_su.setText(download_file_path)
 
-
     def pushButton_download_find_clicked(self):
         download_file_path = QtWidgets.QFileDialog.getExistingDirectory(self,
                                                                         "选择本地下载路径"
@@ -211,7 +212,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.pushButton_supply_upfile.setVisible(False)
             self.pushButton_supply_upstart.setVisible(False)
             MainWindow.SUPPLY_PUSHDOWN_first_click = True
-
 
     def HOST_PUSHDOWN_clicked(self):
         if MainWindow.HOST_PUSHDOWN_first_click == True:
@@ -269,7 +269,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.pushButton_download_su.setText("修改")
             MainWindow.first_click = True
 
-
     def pushButton_nameplate_modify_su_clicked(self):
         if MainWindow.first_click == True:
             self.textEdit_nameplate_su.setReadOnly(False)
@@ -320,7 +319,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.pushButton_download.setText("修改")
             MainWindow.first_click = True
 
-
     def pushButton_download_start_su_clicked(self):
         try:
             print('----------------开始下载-------------------')
@@ -353,7 +351,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             QMessageBox.warning(self, '错误！', '下载失败')
 
     def pushButton_download_start_clicked(self):
-       try:
+        try:
             print('----------------开始下载-------------------')
             # nameplateId=01-BD01
             # 请求响应的接口
@@ -381,7 +379,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             with open(path_str, "wb") as f:
                 f.write(requests.get(download_url).content)
             QMessageBox.information(self, "提示", "下载完成", QMessageBox.Yes)
-       except Exception:
+        except Exception:
             QMessageBox.warning(self, '错误！', '下载失败')
 
     def pushButton_supply_upfile_clicked(self):
@@ -465,6 +463,7 @@ class MyThread(QThread):
         super().__init__(parent)
 
     def run(self):
+        global y_optim, filename
         try:
             flag = 0
             s_server = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
@@ -476,36 +475,58 @@ class MyThread(QThread):
                 self.sec_changed_signal.emit('从{}连接成功,等待接收数据'.format(addr))
                 while 1:
                     try:
-                        filename = s_con.recv(BUFSIZE)
-                        if not filename:
+                        re_data = s_con.recv(BUFSIZE)
+                        if not re_data:
                             break
                     except Exception:
                         break
-                    print("-----------------{}-----------------------".format(time.ctime()))
-                    s_con.send(str.encode('[%s]%s' % (time.ctime(), filename)))
-                    filename = str(filename, encoding='utf-8')
+                    print("-------------------{}-----------------------".format(time.ctime()))
+
+                    re_data = str(re_data, encoding='utf-8')
+                    print(re_data)
+                    re_data = re_data.split(' ')
+                    if len(re_data) == 3:
+                        filename = re_data[2]
+                    else:
+                        filename = re_data[1]
                     src_img_path = r"{}\{}".format(share_path, filename)
-                    print(src_img_path)
-                    self.sec_changed_signal.emit("正在识别----数据接收成功----{}".format(src_img_path))
+
                     start_run = time.time()
-                    x, y = ocr.detect(src_img_path)
-                    print("优化前:", y)
-                    try:
-                        print('url={}{}'.format(search_optimize, y))
-                        re1 = requests.get('{}{}'.format(search_optimize, y))
-                        y_optim = re1.text
-                        print("优化后:", y_optim)
-                        if len(y_optim) > 100:
-                            y_optim = y
-                    except Exception:
-                        flag = 1
-                        self.sec_changed_signal.emit("连接后台服务器失败,请调整后重启服务器!")
-                    if y_optim is None:
-                        y_optim = 'The detection failed'
-                    self.sec_changed_signal.emit('识别结束                {}'.format(y_optim))
-                    s_con.send(str.encode(y_optim))
-                    end_time = time.time()-start_run
-                    self.sec_changed_signal2.emit('{:0.2f}s'.format(end_time))
+                    if 'LABEL' in re_data[0]:
+                        self.sec_changed_signal.emit("正在识别----数据接收成功----{}".format(src_img_path))
+                        x, y = ocr.detect(src_img_path)
+                        print("优化前:", y)
+                        try:
+                            print('url={}{}'.format(search_optimize, y))
+                            re1 = requests.get('{}{}'.format(search_optimize, y))
+                            y_optim = re1.text
+                            print("优化后:", y_optim)
+                            if len(y_optim) > 100:
+                                y_optim = y
+                        except Exception:
+                            flag = 1
+                            self.sec_changed_signal.emit("连接后台服务器失败,请调整后重启服务器!")
+                        if y_optim is None:
+                            y_optim = 'The detection failed'
+                        self.sec_changed_signal.emit('识别结束                {}'.format(y_optim))
+                        y_optim = str(y_optim)
+                        s_con.send(str.encode('LABEL'+' '+y_optim))
+                        end_time = time.time() - start_run
+                        self.sec_changed_signal2.emit('{:0.2f}ms'.format(end_time*1000))
+
+                    if 'CIRC' in re_data[0]:
+                        INPUT = float(re_data[1])
+                        result, image = CHoughCircles.fit_circle(src_img_path, INPUT)
+                        cv.imwrite('circles.png', image)
+                        result = str(result)
+                        s_con.send(str.encode("CIRC"+","+result))
+                        self.sec_changed_signal.emit("正在识别----数据接收成功----{}".format('circles.png'))
+                        self.sec_changed_signal.emit('识别结束                {}'.format(result))
+                        end_time = time.time() - start_run
+                        self.sec_changed_signal2.emit('{:0.2f}ms'.format(end_time*1000))
+
+                    if 'MINST' in re_data[0]:
+                        pass
 
         except Exception:
             try:

@@ -12,7 +12,7 @@ SOCKET服务端建立
 '''
 
 
-HOST = '192.168.3.145'
+HOST = 'localhost'
 PORT = 8888
 BUFZISE = 1024
 ADDR = (HOST, PORT)

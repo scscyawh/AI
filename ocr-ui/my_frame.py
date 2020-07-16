@@ -2,11 +2,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QWidget, QPushButton, QApplication, QGraphicsPixmapItem, QGraphicsScene
 from PyQt5.QtGui import QPalette, QBrush, QPixmap, QImage
 
-HOST_URL_DOWN = 'http://192.168.3.63:8080/upload/selectFastUploadUrl?nameplateId='
-HOST_URL_UPLOAD = 'http://192.168.3.63:8080/upload/fastFinsihUploadFile'
-SUPPLIER_URL_DOWN = 'http://192.168.3.63:8088/SupplierUpload/selectFastUploadUrl?nameplateId='
-SUPPLIER_URL_UPLOAD = 'http://192.168.3.63:8088/SupplierUpload/fastFinsihUploadFile'
-HOST = '192.168.3.145'  # "192.168.0.102"
+HOST_URL_DOWN = 'http://192.168.3.174:8080/upload/selectFastUploadUrl?nameplateId='
+HOST_URL_UPLOAD = 'http://192.168.3.174:8080/upload/fastFinsihUploadFile'
+SUPPLIER_URL_DOWN = 'http://192.168.3.174:8088/SupplierUpload/selectFastUploadUrl?nameplateId='
+SUPPLIER_URL_UPLOAD = 'http://192.168.3.174:8088/SupplierUpload/fastFinsihUploadFile'
+HOST = 'localhost'  # "192.168.0.102"
 PORT = 8888
 
 
